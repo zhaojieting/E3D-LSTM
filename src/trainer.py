@@ -1,5 +1,5 @@
 from dataset import SlidingWindowDataset
-from e3d_lstm import E3DLSTM
+from gsm_lstm import E3DLSTM
 from functools import lru_cache
 from torch.utils.data import DataLoader
 from utils import h5_virtual_file, window, weights_init
@@ -41,14 +41,13 @@ class TaxiBJTrainer(nn.Module):
         self.encoder = E3DLSTM(
             input_shape, hidden_size, lstm_layers, kernel, self.tau
         ).type(dtype)
-        self.decoder = nn.Conv3d(
+        self.decoder = nn.Conv3d(                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
             hidden_size * self.time_steps, output_shape[0], kernel, padding=(0, 2, 2)
         ).type(dtype)
         # self.decoder = nn.Sequential(
         #   nn.Conv3d(hidden_size * self.time_steps, output_shape[0]),
         #  nn.ConvTranspose3d(output_shape[0], output_shape[0], kernel)
         # ).type(dtype)
-
         self.to(self.device)
 
         # Setup optimizer
