@@ -5,6 +5,7 @@ import operator
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from tsm import TemporalShift
 
 
 class E3DLSTM(nn.Module):
@@ -171,7 +172,7 @@ class ConvDeconv3d(nn.Module):
     def __init__(self, in_channels, out_channels, *vargs, **kwargs):
         super().__init__()
 
-        self.conv3d = nn.Conv3d(in_channels, out_channels, *vargs, **kwargs)
+        self.conv3d = TemporalShift(in_channels, out_channels, *vargs, **kwargs)
         # self.conv_transpose3d = nn.ConvTranspose3d(out_channels, out_channels, *vargs, **kwargs)
 
     def forward(self, input):
