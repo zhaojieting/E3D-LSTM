@@ -35,7 +35,7 @@ class TaxiBJTrainer(nn.Module):
 
         self.tau = 2
         hidden_size = 64
-        kernel = (2, 5, 5)
+        kernel = (5, 5)
         lstm_layers = 4
 
         self.encoder = E3DLSTM(
@@ -156,6 +156,7 @@ class TaxiBJTrainer(nn.Module):
                 target = target.to(self.device)
                 self.train()
                 self.optimizer.zero_grad()
+                input.permute(0, 1, 3, 2, 4, 5)
                 l1_loss, l2_loss = self.loss(input, target)
                 loss = l1_loss + l2_loss
                 loss.backward()

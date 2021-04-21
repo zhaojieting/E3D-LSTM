@@ -41,9 +41,8 @@ class E3DLSTM(nn.Module):
                     h_states.append(h)
 
                 # NOTE c_history and h are coming from the previous time stamp, but we iterate over cells
-                c_history, m, h = cell(
-                    x, c_history_states[cell_idx], m, h_states[cell_idx]
-                )
+                # import pdb;pdb.set_trace()
+                c_history, m, h = cell(x, c_history_states[cell_idx], m, h_states[cell_idx])
                 c_history_states[cell_idx] = c_history
                 h_states[cell_idx] = h
                 # NOTE hidden state of previous LSTM is passed as input to the next one
@@ -59,13 +58,13 @@ class E3DLSTMCell(nn.Module):
     def __init__(self, input_shape, hidden_size, kernel_size):
         super().__init__()
 
-        in_channels = input_shape[0]
+        in_channels = input_shape[1]
         self._input_shape = input_shape
         self._hidden_size = hidden_size
 
         # memory gates: input, cell(input modulation), forget
         self.weight_xi = ConvDeconv3d(in_channels, hidden_size, kernel_size)
-        self.weight_hi = ConvDeconv3d(hidden_size, hidden_size, kernel_size, bias=False)
+        self.weight_hi = ConvDeconv3d(hidden_size, hidden_size, kernel_size)
 
         self.weight_xg = copy.deepcopy(self.weight_xi)
         self.weight_hg = copy.deepcopy(self.weight_hi)
@@ -126,7 +125,11 @@ class E3DLSTMCell(nn.Module):
             return F.layer_norm(input, normalized_shape)
 
         # R is CxT×H×W
+        import pdb;pdb.set_trace()
+        test = self.weight_xr(x)
+        test2 = self.weight_hr(h)
         r = torch.sigmoid(LR(self.weight_xr(x) + self.weight_hr(h)))
+        # import pdb;pdb.set_trace()
         i = torch.sigmoid(LR(self.weight_xi(x) + self.weight_hi(h)))
         g = torch.tanh(LR(self.weight_xg(x) + self.weight_hg(h)))
 
@@ -160,7 +163,8 @@ class E3DLSTMCell(nn.Module):
 
     def init_hidden(self, batch_size, tau, device=None):
         memory_shape = list(self._input_shape)
-        memory_shape[0] = self._hidden_size
+        memory_shape[1] = self._hidden_size
+        # import pdb;pdb.set_trace()
         c_history = torch.zeros(tau, batch_size, *memory_shape, device=device)
         m = torch.zeros(batch_size, *memory_shape, device=device)
         h = torch.zeros(batch_size, *memory_shape, device=device)
@@ -169,13 +173,14 @@ class E3DLSTMCell(nn.Module):
 
 
 class ConvDeconv3d(nn.Module):
-    def __init__(self, in_channels, out_channels, *vargs, **kwargs):
+    def __init__(self, in_channels, out_channels, kernel_size):
         super().__init__()
 
-        self.conv3d = TemporalShift(in_channels, out_channels, *vargs, **kwargs)
+        self.conv3d = TemporalShift(in_channels, out_channels, kernel_size)
         # self.conv_transpose3d = nn.ConvTranspose3d(out_channels, out_channels, *vargs, **kwargs)
 
     def forward(self, input):
         # print(self.conv3d(input).shape, input.shape)
         # return self.conv_transpose3d(self.conv3d(input))
-        return F.interpolate(self.conv3d(input), size=input.shape[-3:], mode="nearest")
+        feature_map = self.conv3d(input)
+        return F.interpolate(feature_map, feature_map.shape[-3:], mode="nearest")
