@@ -43,7 +43,7 @@ class TaxiBJTrainer(nn.Module):
             input_shape, hidden_size, lstm_layers, kernel, self.tau
         ).type(dtype)
         self.decoder = TemporalShift(
-            hidden_size * self.time_steps, output_shape[1], kernel
+            hidden_size * self.time_steps, output_shape[0], kernel
         ).type(dtype)
         # self.decoder = nn.Sequential(
         #   nn.Conv3d(hidden_size * self.time_steps, output_shape[0]),
@@ -155,6 +155,7 @@ class TaxiBJTrainer(nn.Module):
                     frames_seq.append(input[:, :, indices[0] : indices[-1] + 1])
 
                 input = torch.stack(frames_seq, dim=0).to(self.device)
+                target.permute(0, 2, 1, 3, 4)
                 target = target.to(self.device)
                 self.train()
                 self.optimizer.zero_grad()
