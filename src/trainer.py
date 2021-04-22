@@ -7,6 +7,7 @@ import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from tsm import TemporalShift
 
 
 class TaxiBJTrainer(nn.Module):
@@ -30,8 +31,8 @@ class TaxiBJTrainer(nn.Module):
 
         # Initiate the network
         # CxT×H×W
-        input_shape = (2, self.temporal_frames, 32, 32)
-        output_shape = (2, self.output_time_horizon, 32, 32)
+        input_shape = (self.temporal_frames, 2, 32, 32)
+        output_shape = (self.output_time_horizon, 2, 32, 32)
 
         self.tau = 2
         hidden_size = 64
@@ -41,8 +42,8 @@ class TaxiBJTrainer(nn.Module):
         self.encoder = E3DLSTM(
             input_shape, hidden_size, lstm_layers, kernel, self.tau
         ).type(dtype)
-        self.decoder = nn.Conv3d(
-            hidden_size * self.time_steps, output_shape[0], kernel, padding=(0, 2, 2)
+        self.decoder = TemporalShift(
+            hidden_size * self.time_steps, output_shape[1], kernel
         ).type(dtype)
         # self.decoder = nn.Sequential(
         #   nn.Conv3d(hidden_size * self.time_steps, output_shape[0]),
@@ -60,7 +61,8 @@ class TaxiBJTrainer(nn.Module):
         self.apply(weights_init())
 
     def forward(self, input_seq):
-        return self.decoder(self.encoder(input_seq))
+        tmp = self.encoder(input_seq)
+        return self.decoder(tmp)
 
     def loss(self, input_seq, target):
         output = self(input_seq)

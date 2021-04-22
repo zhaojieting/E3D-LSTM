@@ -19,7 +19,8 @@ class E3DLSTM(nn.Module):
         for i in range(num_layers):
             cell = E3DLSTMCell(input_shape, hidden_size, kernel_size)
             # NOTE hidden state becomes input to the next cell
-            input_shape[0] = hidden_size
+            # import pdb;pdb.set_trace()
+            input_shape[1] = hidden_size
             self._cells.append(cell)
             # Hook to register submodule
             setattr(self, "cell{}".format(i), cell)
@@ -51,7 +52,7 @@ class E3DLSTM(nn.Module):
             outputs.append(h)
 
         # NOTE Concat along the channels
-        return torch.cat(outputs, dim=1)
+        return torch.cat(outputs, dim=2)
 
 
 class E3DLSTMCell(nn.Module):
@@ -59,6 +60,7 @@ class E3DLSTMCell(nn.Module):
         super().__init__()
 
         in_channels = input_shape[1]
+        self._input_shape = input_shape
         self._input_shape = input_shape
         self._hidden_size = hidden_size
 
@@ -73,7 +75,7 @@ class E3DLSTMCell(nn.Module):
         self.weight_hr = copy.deepcopy(self.weight_hi)
 
         memory_shape = list(input_shape)
-        memory_shape[0] = hidden_size
+        memory_shape[1] = hidden_size
 
         self.layer_norm = nn.LayerNorm(memory_shape)
 
@@ -92,7 +94,8 @@ class E3DLSTMCell(nn.Module):
         self.weight_co = copy.deepcopy(self.weight_hi)
         self.weight_mo = copy.deepcopy(self.weight_hi)
 
-        self.weight_111 = nn.Conv3d(hidden_size + hidden_size, hidden_size, 1)
+        # import pdb;pdb.set_trace()
+        self.weight_111 = TemporalShift(hidden_size + hidden_size, hidden_size, 1, padding=[0, 0]) #todo list
 
     def self_attention(self, r, c_history):
         batch_size = r.size(0)
@@ -125,9 +128,6 @@ class E3DLSTMCell(nn.Module):
             return F.layer_norm(input, normalized_shape)
 
         # R is CxT×H×W
-        import pdb;pdb.set_trace()
-        test = self.weight_xr(x)
-        test2 = self.weight_hr(h)
         r = torch.sigmoid(LR(self.weight_xr(x) + self.weight_hr(h)))
         # import pdb;pdb.set_trace()
         i = torch.sigmoid(LR(self.weight_xi(x) + self.weight_hi(h)))
@@ -138,6 +138,7 @@ class E3DLSTMCell(nn.Module):
         # mem_report()
         # cpu_stats()
 
+        # import pdb;pdb.set_trace()
         c = i * g + self.layer_norm(c_history[-1] + recall)
 
         i_prime = torch.sigmoid(LR(self.weight_xi_prime(x) + self.weight_mi_prime(m)))
@@ -153,7 +154,7 @@ class E3DLSTMCell(nn.Module):
                 + self.weight_mo(m)
             )
         )
-        h = o * torch.tanh(self.weight_111(torch.cat([c, m], dim=1)))
+        h = o * torch.tanh(self.weight_111(torch.cat([c, m], dim=2)))
 
         # TODO is it correct FIFO?
         c_history = torch.cat([c_history[1:], c[None, :]], dim=0)
@@ -168,7 +169,6 @@ class E3DLSTMCell(nn.Module):
         c_history = torch.zeros(tau, batch_size, *memory_shape, device=device)
         m = torch.zeros(batch_size, *memory_shape, device=device)
         h = torch.zeros(batch_size, *memory_shape, device=device)
-
         return (c_history, m, h)
 
 

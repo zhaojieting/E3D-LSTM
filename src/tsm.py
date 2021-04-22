@@ -9,9 +9,9 @@ import torch.nn.functional as F
 
 
 class TemporalShift(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size, n_segment=3, n_div=2, inplace=False):
+    def __init__(self, in_channels, out_channels, kernel_size, padding=[2,2], n_segment=3, n_div=2, inplace=False):
         super(TemporalShift, self).__init__()
-        self.net = nn.Conv2d(in_channels, out_channels, kernel_size, padding=[2,2])
+        self.net = nn.Conv2d(in_channels, out_channels, kernel_size, padding=padding)
         self.n_segment = n_segment
         self.fold_div = n_div
         self.inplace = inplace
