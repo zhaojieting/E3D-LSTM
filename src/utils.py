@@ -1,5 +1,6 @@
 import gc
 import h5py
+import numpy as np
 import math
 import matplotlib.pyplot as plt
 import os
@@ -66,14 +67,12 @@ def window(seq, size=2, stride=1):
             result = result[stride:]
 
 
-def draw(imgs):
-    size = len(imgs)
-    fig, axs = plt.subplots(2, size, figsize=(5, 5), constrained_layout=True)
-    for img, ax1, ax2 in zip(imgs, axs[0], axs[1]):
-        ax1.imshow(img[0])
-        ax2.imshow(img[1])
-    plt.show()
-
+def draw(imgs1, imgs2):
+    imgs1 = imgs1.detach().numpy()
+    imgs2 = imgs2.detach().numpy()
+    img1 = imgs1[0][0].squeeze()
+    img2 = imgs2[0][0].squeeze()
+    return 0
 
 def weights_init(init_type="gaussian"):
     def init_fun(m):
