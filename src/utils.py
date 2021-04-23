@@ -68,8 +68,8 @@ def window(seq, size=2, stride=1):
 
 def draw(imgs1, imgs2):
     plt.ion()
-    imgs1 = imgs1.detach().numpy()
-    imgs2 = imgs2.detach().numpy()
+    imgs1 = imgs1.cpu().detach().numpy()
+    imgs2 = imgs2.cpu().detach().numpy()
     size = len(imgs1)
     fig, axs = plt.subplots(2, 2, figsize=(5, 5), constrained_layout=True)
     for img, ax1, ax2 in zip((imgs1[0], imgs2[0]), axs[0], axs[1]):
