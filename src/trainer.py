@@ -129,7 +129,7 @@ class TaxiBJTrainer(nn.Module):
 
         print(f"Validation L1:{sum_l1_loss / (i + 1)}; L2: {sum_l2_loss / (i + 1)}")
 
-    def resume_train(self, ckpt_path="./taxibj_trainer.pt", resume=False):
+    def resume_train(self, ckpt_path=".master_ckpt/taxibj_trainer.pt", resume=False):
         # 2 weeks / 30min time step = 672
         train_dataloader = self.get_trainloader(self.data[:-672])
         val_dataloader = self.get_trainloader(self.data[-672:], False)
