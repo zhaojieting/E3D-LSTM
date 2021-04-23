@@ -72,6 +72,10 @@ def draw(imgs1, imgs2):
     imgs2 = imgs2.detach().numpy()
     img1 = imgs1[0][0].squeeze()
     img2 = imgs2[0][0].squeeze()
+    plt.figure(1)
+    plt.imshow(img1)
+    plt.imshow(img2)
+    plt.pause(3)
     return 0
 
 def weights_init(init_type="gaussian"):
