@@ -76,6 +76,7 @@ def draw(imgs1, imgs2):
         ax1.imshow(img[0][0].squeeze())
         ax2.imshow(img[1][0].squeeze())
     plt.pause(2)
+    plt.close('all')
     return 0
 
 def weights_init(init_type="gaussian"):
