@@ -183,4 +183,4 @@ class TaxiBJTrainer(nn.Module):
 
 if __name__ == "__main__":
     trainer = TaxiBJTrainer()
-    trainer.resume_train()
+    trainer.resume_train(resume=True)
