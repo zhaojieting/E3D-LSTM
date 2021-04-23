@@ -66,7 +66,6 @@ class TaxiBJTrainer(nn.Module):
 
     def loss(self, input_seq, target):
         output = self(input_seq)
-
         l2_loss = F.mse_loss(output * 255, target * 255)
         l1_loss = F.l1_loss(output * 255, target * 255)
 
