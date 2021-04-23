@@ -138,9 +138,9 @@ class TaxiBJTrainer(nn.Module):
         val_dataloader = self.get_trainloader(self.data[-672:], False)
 
         if resume:
-            checkpoint = torch.load(self, ckpt_path)
+            checkpoint = torch.load(ckpt_path)
             epoch = checkpoint["epoch"]
-            model.load_state_dict(checkpoint["state_dict"])
+            self.load_state_dict(checkpoint["state_dict"])
         else:
             epoch = 0
 
