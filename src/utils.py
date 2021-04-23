@@ -66,14 +66,17 @@ def window(seq, size=2, stride=1):
             result = result[stride:]
 
 
-def draw(imgs):
-    size = len(imgs)
-    fig, axs = plt.subplots(2, size, figsize=(5, 5), constrained_layout=True)
-    for img, ax1, ax2 in zip(imgs, axs[0], axs[1]):
-        ax1.imshow(img[0])
-        ax2.imshow(img[1])
-    plt.show()
-
+def draw(imgs1, imgs2):
+    plt.ion()
+    imgs1 = imgs1.detach().numpy()
+    imgs2 = imgs2.detach().numpy()
+    size = len(imgs1)
+    fig, axs = plt.subplots(2, 2, figsize=(5, 5), constrained_layout=True)
+    for img, ax1, ax2 in zip((imgs1[0], imgs2[0]), axs[0], axs[1]):
+        ax1.imshow(img[0][0].squeeze())
+        ax2.imshow(img[1][0].squeeze())
+    plt.pause(2)
+    return 0
 
 def weights_init(init_type="gaussian"):
     def init_fun(m):
