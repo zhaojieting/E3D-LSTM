@@ -19,7 +19,7 @@ class TaxiBJTrainer(nn.Module):
 
         # TODO make all configurable
         self.num_epoch = 100
-        self.batch_size = 32
+        self.batch_size = 16
 
         self.input_time_window = 4
         self.output_time_horizon = 1
