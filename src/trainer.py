@@ -119,7 +119,10 @@ class TaxiBJTrainer(nn.Module):
                 ):
                     # batch x channels x time x window x height
                     frames_seq.append(input[:, :, indices[0] : indices[-1] + 1])
-                input = torch.stack(frames_seq, dim=0).to(self.device)
+                input = torch.stack(frames_seq, dim=0)
+                input.permute(0, 1, 3, 2, 4, 5)
+                input = input.to(self.device)
+                target.permute(0, 2, 1, 3, 4)
                 target = target.to(self.device)
 
                 l1_loss, l2_loss = self.loss(input, target)
@@ -153,7 +156,9 @@ class TaxiBJTrainer(nn.Module):
                     # batch x channels x time x window x height
                     frames_seq.append(input[:, :, indices[0] : indices[-1] + 1])
 
-                input = torch.stack(frames_seq, dim=0).to(self.device)
+                input = torch.stack(frames_seq, dim=0)
+                input.permute(0, 1, 3, 2, 4, 5)
+                input = input.to(self.device)
                 target.permute(0, 2, 1, 3, 4)
                 target = target.to(self.device)
                 self.train()
