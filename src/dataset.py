@@ -17,13 +17,12 @@ class SlidingWindowDataset(torch.utils.data.Dataset):
         y = self._data[index + self._window : index + self._window + self._horizon]
 
         # switching to PyTorch format C,D,H,W
-        x = np.swapaxes(x, 0, 1)
-        y = np.swapaxes(y, 0, 1)
+        # x = np.swapaxes(x, 0, 1)
+        # y = np.swapaxes(y, 0, 1)
 
         if self._transform:
             x = self._transform(x)
             y = self._transform(y)
-
         return (
             torch.from_numpy(x).type(self._dtype),
             torch.from_numpy(y).type(self._dtype),

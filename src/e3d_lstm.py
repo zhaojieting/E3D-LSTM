@@ -52,6 +52,7 @@ class E3DLSTM(nn.Module):
             outputs.append(h)
 
         # NOTE Concat along the channels
+        import pdb;pdb.set_trace()
         return torch.cat(outputs, dim=2)
 
 
@@ -144,7 +145,6 @@ class E3DLSTMCell(nn.Module):
         i_prime = torch.sigmoid(LR(self.weight_xi_prime(x) + self.weight_mi_prime(m)))
         g_prime = torch.tanh(LR(self.weight_xg_prime(x) + self.weight_mg_prime(m)))
         f_prime = torch.sigmoid(LR(self.weight_xf_prime(x) + self.weight_mf_prime(m)))
-
         m = i_prime * g_prime + f_prime * m
         o = torch.sigmoid(
             LR(

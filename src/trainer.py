@@ -21,10 +21,10 @@ class TaxiBJTrainer(nn.Module):
         self.num_epoch = 100
         self.batch_size = 16
 
-        self.input_time_window = 4
-        self.output_time_horizon = 1
-        self.temporal_stride = 1
-        self.temporal_frames = 2
+        self.input_time_window = 10
+        self.output_time_horizon = 5
+        self.temporal_stride = 5
+        self.temporal_frames = 5
         self.time_steps = (
             self.input_time_window - self.temporal_frames + 1
         ) // self.temporal_stride
@@ -62,6 +62,7 @@ class TaxiBJTrainer(nn.Module):
 
     def forward(self, input_seq):
         tmp = self.encoder(input_seq)
+        import pdb;pdb.set_trace()
         return self.decoder(tmp)
 
     def loss(self, input_seq, target):
@@ -119,11 +120,11 @@ class TaxiBJTrainer(nn.Module):
                     self.temporal_stride,
                 ):
                     # batch x channels x time x window x height
-                    frames_seq.append(input[:, :, indices[0] : indices[-1] + 1])
+                    frames_seq.append(input[:, indices[0] : indices[-1] + 1])
                 input = torch.stack(frames_seq, dim=0)
-                input.permute(0, 1, 3, 2, 4, 5)
+                # input.permute(0, 1, 3, 2, 4, 5)
                 input = input.to(self.device)
-                target.permute(0, 2, 1, 3, 4)
+                # target.permute(0, 2, 1, 3, 4)
                 target = target.to(self.device)
 
                 l1_loss, l2_loss = self.loss(input, target)
@@ -155,16 +156,15 @@ class TaxiBJTrainer(nn.Module):
                     self.temporal_stride,
                 ):
                     # batch x channels x time x window x height
-                    frames_seq.append(input[:, :, indices[0] : indices[-1] + 1])
-
+                    frames_seq.append(input[:, indices[0] : indices[-1] + 1])
                 input = torch.stack(frames_seq, dim=0)
-                input.permute(0, 1, 3, 2, 4, 5)
+                # input.permute(0, 1, 3, 2, 4, 5)
                 input = input.to(self.device)
-                target.permute(0, 2, 1, 3, 4)
+                # target.permute(0, 2, 1, 3, 4)
                 target = target.to(self.device)
                 self.train()
                 self.optimizer.zero_grad()
-                input.permute(0, 1, 3, 2, 4, 5)
+                # input.permute(0, 1, 3, 2, 4, 5)
                 l1_loss, l2_loss = self.loss(input, target)
                 loss = l1_loss + l2_loss
                 loss.backward()

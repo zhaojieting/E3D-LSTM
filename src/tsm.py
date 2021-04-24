@@ -24,7 +24,7 @@ class TemporalShift(nn.Module):
         shape = x.size()
         tmp_feature = self.net(x.view(shape[0]*shape[1], shape[2], shape[3], shape[4] ))
         shape_1 = tmp_feature.shape
-        return tmp_feature.view(shape_1[0]//2, 2, shape_1[1], shape_1[2], shape_1[3])
+        return tmp_feature.view(shape_1[0]//shape[1], shape[1], shape_1[1], shape_1[2], shape_1[3])
 
     @staticmethod
     def shift(x, n_segment, fold_div=2, inplace=False):
@@ -40,4 +40,5 @@ class TemporalShift(nn.Module):
             out[:, :-1, :fold] = x[:, 1:, :fold]  # shift left
             # out[:, 1:, fold: 2 * fold] = x[:, :-1, fold: 2 * fold]  # shift right
             out[:, :, fold:] = x[:, :, fold:]  # not shift
-        return out.view(batch, t, c, h, w)
+        out = x + out.view(batch, t, c, h, w)
+        return out
