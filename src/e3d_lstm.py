@@ -52,7 +52,6 @@ class E3DLSTM(nn.Module):
             outputs.append(h)
 
         # NOTE Concat along the channels
-        import pdb;pdb.set_trace()
         return torch.cat(outputs, dim=2)
 
 

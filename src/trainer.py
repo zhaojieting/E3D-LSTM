@@ -25,10 +25,10 @@ class TaxiBJTrainer(nn.Module):
         self.output_time_horizon = 5
         self.temporal_stride = 5
         self.temporal_frames = 5
-        self.time_steps = (
-            self.input_time_window - self.temporal_frames + 1
-        ) // self.temporal_stride
-
+        # self.time_steps = (
+        #     self.input_time_window - self.temporal_frames + 1
+        # ) // self.temporal_stride
+        self.time_steps = 2
         # Initiate the network
         # CxT×H×W
         input_shape = (self.temporal_frames, 2, 32, 32)
@@ -43,7 +43,7 @@ class TaxiBJTrainer(nn.Module):
             input_shape, hidden_size, lstm_layers, kernel, self.tau
         ).type(dtype)
         self.decoder = TemporalShift(
-            hidden_size * self.time_steps, output_shape[0], kernel
+            hidden_size * self.time_steps, output_shape[1], kernel
         ).type(dtype)
         # self.decoder = nn.Sequential(
         #   nn.Conv3d(hidden_size * self.time_steps, output_shape[0]),
@@ -62,7 +62,6 @@ class TaxiBJTrainer(nn.Module):
 
     def forward(self, input_seq):
         tmp = self.encoder(input_seq)
-        import pdb;pdb.set_trace()
         return self.decoder(tmp)
 
     def loss(self, input_seq, target):

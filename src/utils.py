@@ -84,13 +84,17 @@ def draw(imgs1, imgs2):
     imgs1 = imgs1.cpu().detach().numpy()
     imgs2 = imgs2.cpu().detach().numpy()
     size = len(imgs1)
-    fig, axs = plt.subplots(2, 2, figsize=(5, 5), constrained_layout=True)
-    for img, ax1, ax2 in zip((imgs1[0], imgs2[0]), axs[0], axs[1]):
+    fig, axs = plt.subplots(5, 2, figsize=(5, 5), constrained_layout=True)
+    for img, ax1, ax2, ax3, ax4, ax5 in zip((imgs1[0], imgs2[0]), axs[0], axs[1], axs[2], axs[3], axs[4]):
         ax1.imshow(img[0][0].squeeze())
         ax2.imshow(img[1][0].squeeze())
+        ax3.imshow(img[2][0].squeeze())
+        ax4.imshow(img[3][0].squeeze())
+        ax5.imshow(img[4][0].squeeze())
     plt.pause(2)
     plt.close('all')
     return 0
+
 
 def weights_init(init_type="gaussian"):
     def init_fun(m):
