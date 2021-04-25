@@ -1,13 +1,14 @@
-from dataset import SlidingWindowDataset
+from dataset import SlidingWindowDataset, MnistWindowDataset
 from e3d_lstm import E3DLSTM
 from functools import lru_cache
 from torch.utils.data import DataLoader
-from utils import h5_virtual_file, window, weights_init
+from utils import h5_virtual_file, window, weights_init, MNISTdataLoader
 import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from tsm import TemporalShift
+import numpy as np
 
 
 class TaxiBJTrainer(nn.Module):
@@ -31,8 +32,8 @@ class TaxiBJTrainer(nn.Module):
         self.time_steps = 2
         # Initiate the network
         # CxT×H×W
-        input_shape = (self.temporal_frames, 2, 32, 32)
-        output_shape = (self.output_time_horizon, 2, 32, 32)
+        input_shape = (self.temporal_frames, 1, 64, 64)
+        output_shape = (self.output_time_horizon, 1, 64, 64)
 
         self.tau = 2
         hidden_size = 64
@@ -75,25 +76,15 @@ class TaxiBJTrainer(nn.Module):
     @property
     @lru_cache(maxsize=1)
     def data(self):
-        taxibj_dir = "./data/TaxiBJ/"
-        # TODO make configurable
-        f = h5_virtual_file(
-            [
-                f"{taxibj_dir}BJ13_M32x32_T30_InOut.h5",
-                f"{taxibj_dir}BJ14_M32x32_T30_InOut.h5",
-                f"{taxibj_dir}BJ15_M32x32_T30_InOut.h5",
-                f"{taxibj_dir}BJ16_M32x32_T30_InOut.h5",
-            ]
-        )
-        return f.get("data")
+        path = './mnist_test_seq.npy'
+        raw_data = MNISTdataLoader(path)
+        data = np.expand_dims(raw_data, axis=1)
+        return data
 
     def get_trainloader(self, raw_data, shuffle=True):
         # NOTE note we do simple transformation, only approx within [0,1]
-        dataset = SlidingWindowDataset(
+        dataset = MnistWindowDataset(
             raw_data,
-            self.input_time_window,
-            self.output_time_horizon,
-            lambda t: t / 255,
         )
 
         return DataLoader(

@@ -28,6 +28,7 @@ class TemporalShift(nn.Module):
 
     @staticmethod
     def shift(x, n_segment, fold_div=2, inplace=False):
+        # import pdb;pdb.set_trace()
         batch, t, c, h, w = x.size()
         fold = c // fold_div
         if inplace:
