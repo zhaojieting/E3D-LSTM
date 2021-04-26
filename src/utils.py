@@ -6,6 +6,7 @@ import os
 import psutil
 import sys
 import torch
+import numpy as np
 import torch.nn.init as init
 import uuid
 
@@ -66,15 +67,24 @@ def window(seq, size=2, stride=1):
             result = result[stride:]
 
 
-def draw(imgs1, imgs2):
+
+def draw(pre_seqs, targets, results):
     plt.ion()
-    imgs1 = imgs1.cpu().detach().numpy()
-    imgs2 = imgs2.cpu().detach().numpy()
-    size = len(imgs1)
-    fig, axs = plt.subplots(2, 2, figsize=(5, 5), constrained_layout=True)
-    for img, ax1, ax2 in zip((imgs1[0], imgs2[0]), axs[0], axs[1]):
-        ax1.imshow(img[0][0].squeeze())
-        ax2.imshow(img[1][0].squeeze())
+    targets = targets.cpu().detach().numpy()
+    results = results.cpu().detach().numpy()
+    pre_seqs = pre_seqs.cpu().detach().numpy()
+    pre_seqs = np.concatenate(pre_seqs,axis=0)
+
+    fig, axs = plt.subplots(2, 15, figsize=(5, 5), constrained_layout=True)
+
+    for i, img in enumerate(pre_seqs):
+        axs[0][i].imshow(img[0][0].squeeze())
+        axs[1][i].imshow(img[0][0].squeeze())
+
+    for i, target, result in enumerate(zip((targets, results)), start=10):
+        axs[0][i].imshow(target[0][0].squeeze())
+        axs[1][i].imshow(result[0][0].squeeze())
+
     plt.pause(2)
     plt.close('all')
     return 0

@@ -31,3 +31,22 @@ class SlidingWindowDataset(torch.utils.data.Dataset):
 
     def __len__(self):
         return self._data.shape[0] - self._window - self._horizon + 1
+
+
+class MnistWindowDataset(torch.utils.data.Dataset):
+    def __init__(self, data, dtype=torch.float):
+        super().__init__()
+        self._data = data
+        self._dtype = dtype
+
+    def __getitem__(self, index):
+        sequence = np.swapaxes(self._data[index], 0, 1)
+        x = sequence[:10]
+        y = sequence[10: -5]
+        return (
+            torch.from_numpy(x/255).type(self._dtype),
+            torch.from_numpy(y/255).type(self._dtype),
+        )
+
+    def __len__(self):
+        return len(self._data)

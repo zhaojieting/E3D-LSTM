@@ -1,9 +1,11 @@
-from dataset import SlidingWindowDataset
+from dataset import SlidingWindowDataset, MnistWindowDataset
 from e3d_lstm import E3DLSTM
 from functools import lru_cache
 from torch.utils.data import DataLoader
 from utils import h5_virtual_file, window, weights_init
 import os
+import
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -75,17 +77,10 @@ class TaxiBJTrainer(nn.Module):
     @property
     @lru_cache(maxsize=1)
     def data(self):
-        taxibj_dir = "./data/TaxiBJ/"
-        # TODO make configurable
-        f = h5_virtual_file(
-            [
-                f"{taxibj_dir}BJ13_M32x32_T30_InOut.h5",
-                f"{taxibj_dir}BJ14_M32x32_T30_InOut.h5",
-                f"{taxibj_dir}BJ15_M32x32_T30_InOut.h5",
-                f"{taxibj_dir}BJ16_M32x32_T30_InOut.h5",
-            ]
-        )
-        return f.get("data")
+        path = './mnist_test_seq.npy'
+        raw_data = MNISTdataLoader(path)
+        data = np.expand_dims(raw_data, axis=1)
+        return data
 
     def get_trainloader(self, raw_data, shuffle=True):
         # NOTE note we do simple transformation, only approx within [0,1]
