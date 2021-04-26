@@ -40,9 +40,10 @@ class MnistWindowDataset(torch.utils.data.Dataset):
         self._dtype = dtype
 
     def __getitem__(self, index):
-        sequence = np.swapaxes(self._data[index], 0, 1)
-        x = sequence[:10]
-        y = sequence[10: -5]
+        # sequence = np.swapaxes(self._data[index], 0, 1)
+        # import pdb;pdb.set_trace()
+        x = self._data[index][:, :10]
+        y = self._data[index][:, 10:15]
         return (
             torch.from_numpy(x/255).type(self._dtype),
             torch.from_numpy(y/255).type(self._dtype),

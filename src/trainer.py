@@ -2,9 +2,8 @@ from dataset import SlidingWindowDataset, MnistWindowDataset
 from e3d_lstm import E3DLSTM
 from functools import lru_cache
 from torch.utils.data import DataLoader
-from utils import h5_virtual_file, window, weights_init
+from utils import h5_virtual_file, window, weights_init, MNISTdataLoader
 import os
-import
 import numpy as np
 import torch
 import torch.nn as nn
@@ -22,18 +21,18 @@ class TaxiBJTrainer(nn.Module):
         self.num_epoch = 100
         self.batch_size = 16
 
-        self.input_time_window = 4
-        self.output_time_horizon = 1
-        self.temporal_stride = 1
-        self.temporal_frames = 2
+        self.input_time_window = 10
+        self.output_time_horizon = 5
+        self.temporal_stride = 5
+        self.temporal_frames = 5
         self.time_steps = (
             self.input_time_window - self.temporal_frames + 1
         ) // self.temporal_stride
 
         # Initiate the network
         # CxT×H×W
-        input_shape = (2, self.temporal_frames, 32, 32)
-        output_shape = (2, self.output_time_horizon, 32, 32)
+        input_shape = (1, self.temporal_frames, 64, 64)
+        output_shape = (1, self.output_time_horizon, 64, 64)
 
         self.tau = 2
         hidden_size = 64
@@ -44,7 +43,7 @@ class TaxiBJTrainer(nn.Module):
             input_shape, hidden_size, lstm_layers, kernel, self.tau
         ).type(dtype)
         self.decoder = nn.Conv3d(
-            hidden_size * self.time_steps, output_shape[0], kernel, padding=(0, 2, 2)
+            hidden_size, output_shape[0], kernel, padding=(0, 2, 2)
         ).type(dtype)
         # self.decoder = nn.Sequential(
         #   nn.Conv3d(hidden_size * self.time_steps, output_shape[0]),
@@ -84,11 +83,8 @@ class TaxiBJTrainer(nn.Module):
 
     def get_trainloader(self, raw_data, shuffle=True):
         # NOTE note we do simple transformation, only approx within [0,1]
-        dataset = SlidingWindowDataset(
+        dataset = MnistWindowDataset(
             raw_data,
-            self.input_time_window,
-            self.output_time_horizon,
-            lambda t: t / 255,
         )
 
         return DataLoader(
@@ -148,7 +144,6 @@ class TaxiBJTrainer(nn.Module):
                 ):
                     # batch x channels x time x window x height
                     frames_seq.append(input[:, :, indices[0] : indices[-1] + 1])
-
                 input = torch.stack(frames_seq, dim=0).to(self.device)
                 target = target.to(self.device)
                 self.train()
@@ -171,4 +166,4 @@ class TaxiBJTrainer(nn.Module):
 
 if __name__ == "__main__":
     trainer = TaxiBJTrainer()
-    trainer.resume_train(resume=True)
+    trainer.resume_train()

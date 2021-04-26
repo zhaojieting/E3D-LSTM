@@ -140,3 +140,10 @@ def h5_virtual_file(filenames, name="data"):
     f = h5py.File(f"{uuid.uuid4()}.h5", "w", libver="latest")
     f.create_virtual_dataset(name, layout)
     return f
+
+def MNISTdataLoader(path):
+    # loadmovingmnistdata,datashape=[timesteps,batchsize,width,height]=[20,batch_size,64,64]
+    # BSHW->SBHW
+    data=np.load(path)
+    data_trans=data.transpose(1,0,2,3)
+    return data_trans
