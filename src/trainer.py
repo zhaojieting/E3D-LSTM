@@ -70,7 +70,7 @@ class TaxiBJTrainer(nn.Module):
         l2_loss = F.mse_loss(output * 255, target * 255)
         l1_loss = F.l1_loss(output * 255, target * 255)
         from utils import draw
-        draw(target, output)
+        draw(input_seq, target, output)
         return l1_loss, l2_loss
 
     @property
