@@ -43,7 +43,7 @@ class MnistWindowDataset(torch.utils.data.Dataset):
         # sequence = np.swapaxes(self._data[index], 0, 1)
         # import pdb;pdb.set_trace()
         x = self._data[index][:, :10]
-        y = self._data[index][:, 10:15]
+        y = self._data[index][:, 10:14]
         return (
             torch.from_numpy(x/255).type(self._dtype),
             torch.from_numpy(y/255).type(self._dtype),

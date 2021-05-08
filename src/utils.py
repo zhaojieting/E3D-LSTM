@@ -71,19 +71,20 @@ def window(seq, size=2, stride=1):
 def draw(pre_seqs, targets, results):
     plt.ion()
     targets = targets.cpu().detach().numpy()
+    targets = np.swapaxes(targets, 1, 2)
     results = results.cpu().detach().numpy()
-    pre_seqs = pre_seqs.cpu().detach().numpy()
-    pre_seqs = np.concatenate(pre_seqs,axis=0)
+    results = np.swapaxes(results, 1, 2)
+    # pre_seqs = pre_seqs.cpu().detach().numpy()
+    # pre_seqs = np.concatenate(pre_seqs,axis=0)
 
-    fig, axs = plt.subplots(2, 15, figsize=(5, 5), constrained_layout=True)
-
-    for i, img in enumerate(pre_seqs):
-        axs[0][i].imshow(img[0][0].squeeze())
-        axs[1][i].imshow(img[0][0].squeeze())
-
-    for i, target, result in enumerate(zip((targets, results)), start=10):
-        axs[0][i].imshow(target[0][0].squeeze())
-        axs[1][i].imshow(result[0][0].squeeze())
+    fig, axs = plt.subplots(2, 5, figsize=(10, 10), constrained_layout=True)
+    #
+    # for i, img in enumerate(pre_seqs):
+    #     axs[0][i].imshow(img[0][0].squeeze())
+    #     axs[1][i].imshow(img[0][0].squeeze())
+    for i in range(4):
+        axs[0][i].imshow(targets[0][i].squeeze())
+        axs[1][i].imshow(results[0][i].squeeze())
 
     plt.pause(2)
     plt.close('all')

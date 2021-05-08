@@ -129,7 +129,7 @@ class E3DLSTMCell(nn.Module):
         i = torch.sigmoid(LR(self.weight_xi(x) + self.weight_hi(h)))
         g = torch.tanh(LR(self.weight_xg(x) + self.weight_hg(h)))
 
-        recall = self.self_attention_fast(r, c_history)
+        recall = self.self_attention(r, c_history)
         # nice_print(**locals())
         # mem_report()
         # cpu_stats()

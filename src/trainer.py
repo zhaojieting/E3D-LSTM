@@ -19,7 +19,7 @@ class TaxiBJTrainer(nn.Module):
 
         # TODO make all configurable
         self.num_epoch = 100
-        self.batch_size = 16
+        self.batch_size = 1
 
         self.input_time_window = 10
         self.output_time_horizon = 5
@@ -43,7 +43,7 @@ class TaxiBJTrainer(nn.Module):
             input_shape, hidden_size, lstm_layers, kernel, self.tau
         ).type(dtype)
         self.decoder = nn.Conv3d(
-            hidden_size, output_shape[0], kernel, padding=(0, 2, 2)
+            hidden_size*2, output_shape[0], kernel, padding=(0, 2, 2)
         ).type(dtype)
         # self.decoder = nn.Sequential(
         #   nn.Conv3d(hidden_size * self.time_steps, output_shape[0]),
@@ -61,7 +61,8 @@ class TaxiBJTrainer(nn.Module):
         self.apply(weights_init())
 
     def forward(self, input_seq):
-        return self.decoder(self.encoder(input_seq))
+        tmp = self.encoder(input_seq)
+        return self.decoder(tmp)
 
     def loss(self, input_seq, target):
         output = self(input_seq)
@@ -69,7 +70,7 @@ class TaxiBJTrainer(nn.Module):
         l2_loss = F.mse_loss(output * 255, target * 255)
         l1_loss = F.l1_loss(output * 255, target * 255)
         from utils import draw
-        draw(target, output)
+        draw(input_seq, target, output)
 
         return l1_loss, l2_loss
 
